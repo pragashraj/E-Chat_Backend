@@ -35,21 +35,20 @@ public class WebSocketEventListener {
 
         String username = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("username");
         String privateUsername = (String) headerAccessor.getSessionAttributes().get("private-username");
+
         if (username != null) {
             logger.info("User Disconnected : " + username);
 
             ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setType(ChatMessage.MessageType.LEAVE);
             chatMessage.setSender(username);
 
-            messagingTemplate.convertAndSend("/topic/pubic", chatMessage);
+            messagingTemplate.convertAndSend("/topic/public", chatMessage);
         }
 
         if (privateUsername != null) {
             logger.info("User Disconnected : " + privateUsername);
 
             ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setType(ChatMessage.MessageType.LEAVE);
             chatMessage.setSender(privateUsername);
 
             messagingTemplate.convertAndSend("/queue/reply", chatMessage);

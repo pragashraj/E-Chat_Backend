@@ -28,7 +28,7 @@ public class ChatController {
     }
 
     @MessageMapping("/sendMessage")
-    @SendTo("/topic/pubic")
+    @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
         try {
             return chatMessage;
@@ -39,7 +39,7 @@ public class ChatController {
     }
 
     @MessageMapping("/addUser")
-    @SendTo("/topic/pubic")
+    @SendTo("/topic/public")
     public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
         try {
             Objects.requireNonNull(headerAccessor.getSessionAttributes()).put(
