@@ -1,7 +1,7 @@
 package com.echat.chat.controllers;
 
 import com.echat.chat.models.ChatMessage;
-import com.echat.chat.utills.WebSocketEventListener;
+import com.echat.chat.utils.WebSocketEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class ChatController {
     @SendTo("/topic/public")
     public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
         try {
-            Objects.requireNonNull(headerAccessor.getSessionAttributes()).put(
+            headerAccessor.getSessionAttributes().put(
                     "username",
                     chatMessage.getSender()
             );
