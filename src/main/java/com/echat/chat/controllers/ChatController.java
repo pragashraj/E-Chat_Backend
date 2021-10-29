@@ -14,8 +14,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Objects;
-
 @Controller
 public class ChatController {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
@@ -71,7 +69,7 @@ public class ChatController {
     @SendTo("/queue/reply")
     public ChatMessage addPrivateUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
         try {
-            Objects.requireNonNull(headerAccessor.getSessionAttributes()).put(
+            headerAccessor.getSessionAttributes().put(
                     "private-username",
                     chatMessage.getSender()
             );

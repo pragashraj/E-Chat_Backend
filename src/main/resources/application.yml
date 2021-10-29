@@ -1,0 +1,22 @@
+server:
+  port: 9000
+  compression:
+    enabled: true
+  error:
+    include-message: always
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/eChat?createDatabaseIfNotExist=true&useLegacyDatetimeCode=false
+    username: root
+    password:
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
