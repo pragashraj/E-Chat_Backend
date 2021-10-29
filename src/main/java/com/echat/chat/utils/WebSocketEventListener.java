@@ -41,6 +41,7 @@ public class WebSocketEventListener {
 
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setSender(username);
+            chatMessage.setType(ChatMessage.MessageType.LEAVE);
 
             messagingTemplate.convertAndSend("/topic/public", chatMessage);
         }
@@ -50,6 +51,7 @@ public class WebSocketEventListener {
 
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setSender(privateUsername);
+            chatMessage.setType(ChatMessage.MessageType.LEAVE);
 
             messagingTemplate.convertAndSend("/queue/reply", chatMessage);
         }

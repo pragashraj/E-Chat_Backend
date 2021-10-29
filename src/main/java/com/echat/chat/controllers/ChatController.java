@@ -44,6 +44,7 @@ public class ChatController {
                     "username",
                     chatMessage.getSender()
             );
+            logger.info("New User: {} added", chatMessage.getSender());
             return chatMessage;
         } catch (Exception e) {
             logger.error("Unable to add user, cause: {}", e.getMessage());
