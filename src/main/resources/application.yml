@@ -20,3 +20,8 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+
+app:
+  jwt:
+    secret: JwtSecretForEchat
+    expiration: 150000000

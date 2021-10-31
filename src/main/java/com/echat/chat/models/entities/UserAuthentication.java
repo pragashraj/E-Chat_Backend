@@ -1,4 +1,4 @@
-package com.echat.chat.models;
+package com.echat.chat.models.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,10 +12,17 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User {
+public class UserAuthentication {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String username;
+    private String email;
+
+    private String password;
+
+    private int loginAttempts;
+
+    @OneToOne
+    private User user;
 }
