@@ -28,20 +28,21 @@ public class RegisterUseCase {
             throw new RegisterException("User already exist with same email");
         }
 
+        User user = User
+                .builder()
+                .email(request.getEmail())
+                .username(request.getUsername())
+                .build();
+        userRepository.save(user);
+
         UserAuthentication newEntity = UserAuthentication
                 .builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .loginAttempts(0)
+                .user(user)
                 .build();
         authRepository.save(newEntity);
-
-        User admin = User
-                .builder()
-                .email(request.getEmail())
-                .username(request.getUsername())
-                .build();
-        userRepository.save(admin);
 
         return "Registered successfully";
     }
