@@ -44,7 +44,7 @@ public class ChatController {
                     "username",
                     chatMessage.getSender()
             );
-            logger.info("New User: {} added", chatMessage.getSender());
+            logger.info("New user: {} added", chatMessage.getSender());
             return chatMessage;
         } catch (Exception e) {
             logger.error("Unable to add user, cause: {}", e.getMessage());
@@ -74,6 +74,7 @@ public class ChatController {
                     "private-username",
                     chatMessage.getSender()
             );
+            logger.info("New private user: {} added", chatMessage.getSender());
             return chatMessage;
         } catch (Exception e) {
             logger.error("Unable to add private user, cause: {}", e.getMessage());
