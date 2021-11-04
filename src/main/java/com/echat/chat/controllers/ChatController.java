@@ -1,6 +1,12 @@
 package com.echat.chat.controllers;
 
+import com.echat.chat.exception.EntityNotFoundException;
 import com.echat.chat.models.ChatMessage;
+import com.echat.chat.models.requests.NewMessageRequest;
+import com.echat.chat.repositories.ContactRepository;
+import com.echat.chat.repositories.MessageRepository;
+import com.echat.chat.repositories.UserRepository;
+import com.echat.chat.usecases.CreateNewMessageUseCase;
 import com.echat.chat.utils.WebSocketEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +25,49 @@ public class ChatController {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
 
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
+    private final ContactRepository contactRepository;
 
     @Autowired
-    public ChatController(SimpMessagingTemplate simpMessagingTemplate) {
+    public ChatController(SimpMessagingTemplate simpMessagingTemplate,
+                          UserRepository userRepository,
+                          MessageRepository messageRepository,
+                          ContactRepository contactRepository
+    ) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
+        this.contactRepository = contactRepository;
     }
 
     @MessageMapping("/sendMessage")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
         try {
+            if (chatMessage.getType().equals(ChatMessage.MessageType.CHAT)) {
+                NewMessageRequest request = new NewMessageRequest(
+                        chatMessage.getSender(),
+                        chatMessage.getReceiver(),
+                        chatMessage.getContent()
+                );
+                CreateNewMessageUseCase useCase = new CreateNewMessageUseCase(
+                        userRepository,
+                        messageRepository,
+                        contactRepository,
+                        request
+                );
+                useCase.execute();
+            }
+            logger.info("New message: {}, from : {}, to: {}",
+                    chatMessage.getContent(),
+                    chatMessage.getSender(),
+                    chatMessage.getReceiver()
+            );
             return chatMessage;
+        } catch (EntityNotFoundException e) {
+            logger.error("Unable to send message, cause: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             logger.error("Unable to send message, cause: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "server error");
@@ -59,6 +97,11 @@ public class ChatController {
                     chatMessage.getReceiver().trim(),
                     "/reply",
                     chatMessage
+            );
+            logger.info("New private message: {}, from : {}, to: {}",
+                    chatMessage.getContent(),
+                    chatMessage.getSender(),
+                    chatMessage.getReceiver()
             );
         } catch (Exception e) {
             logger.error("Unable to send private message, cause: {}", e.getMessage());
