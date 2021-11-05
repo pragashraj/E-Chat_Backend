@@ -17,6 +17,8 @@ public class Contact {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private String contactPerson;
+
     @OneToOne
-    private User contactUser;
+    private User contactOwner;
 }

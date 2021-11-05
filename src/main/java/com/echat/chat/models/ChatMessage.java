@@ -16,5 +16,5 @@ public class ChatMessage {
     private MessageType type;
     private LocalDateTime dateTime = LocalDateTime.now();
 
-    public enum MessageType {CHAT, JOIN, LEAVE, TYPING}
+    public enum MessageType {CHAT, JOIN, LEAVE}
 }

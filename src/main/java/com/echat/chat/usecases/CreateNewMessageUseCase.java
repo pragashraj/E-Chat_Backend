@@ -48,11 +48,11 @@ public class CreateNewMessageUseCase {
 
         messageRepository.save(message);
 
-        List<Contact> contacts = sender.getContacts();
+        List<Contact> contacts = contactRepository.findAllByContactOwner(sender);
         boolean receiverAlreadyExistAsContact = false;
 
         for (Contact contact : contacts) {
-            if (contact.getContactUser() == receiver) {
+            if (contact.getContactPerson().equals(request.getReceiver())) {
                 receiverAlreadyExistAsContact = true;
                 break;
             }
@@ -60,7 +60,8 @@ public class CreateNewMessageUseCase {
 
         if (!receiverAlreadyExistAsContact) {
             Contact contact = Contact.builder()
-                    .contactUser(receiver)
+                    .contactPerson(request.getReceiver())
+                    .contactOwner(sender)
                     .build();
 
             contactRepository.save(contact);

@@ -3,10 +3,12 @@ package com.echat.chat.controllers;
 import com.echat.chat.exception.EntityNotFoundException;
 import com.echat.chat.models.ChatMessage;
 import com.echat.chat.models.requests.NewMessageRequest;
+import com.echat.chat.models.responses.UserContactsResponse;
 import com.echat.chat.repositories.ContactRepository;
 import com.echat.chat.repositories.MessageRepository;
 import com.echat.chat.repositories.UserRepository;
 import com.echat.chat.usecases.CreateNewMessageUseCase;
+import com.echat.chat.usecases.GetUserMessageContactsUseCase;
 import com.echat.chat.utils.WebSocketEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,14 +78,23 @@ public class ChatController {
 
     @MessageMapping("/addUser")
     @SendTo("/topic/public")
-    public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
+    public UserContactsResponse addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
         try {
             headerAccessor.getSessionAttributes().put(
                     "username",
                     chatMessage.getSender()
             );
+            GetUserMessageContactsUseCase useCase = new GetUserMessageContactsUseCase(
+                    userRepository,
+                    contactRepository,
+                    chatMessage.getSender()
+            );
+            UserContactsResponse response = useCase.execute();
             logger.info("New user: {} added", chatMessage.getSender());
-            return chatMessage;
+            return response;
+        } catch (EntityNotFoundException e) {
+            logger.error("Unable to add user, cause: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             logger.error("Unable to add user, cause: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "server error");
