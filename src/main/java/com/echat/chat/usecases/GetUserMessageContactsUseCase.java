@@ -11,8 +11,8 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class GetUserMessageContactsUseCase {
@@ -23,7 +23,7 @@ public class GetUserMessageContactsUseCase {
     private final String username;
 
     public UserContactsResponse execute() throws EntityNotFoundException {
-        User user = userRepository.findByUsername(username);
+        User user = getUser(username);
 
         if (user == null) {
             log.error("user not found with username: {}", username);
@@ -35,7 +35,14 @@ public class GetUserMessageContactsUseCase {
         return new UserContactsResponse(
                 user.getUsername(),
                 ChatMessage.MessageType.JOIN,
-                contacts
+                contacts.stream().map(contact -> new UserContactsResponse.Contact(
+                        contact.getId(),
+                        getUser(contact.getContactPerson())
+                )).collect(Collectors.toList())
         );
+    }
+
+    private User getUser(String name) {
+        return userRepository.findByUsername(name);
     }
 }
