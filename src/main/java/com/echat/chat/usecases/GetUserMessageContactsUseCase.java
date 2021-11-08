@@ -3,9 +3,11 @@ package com.echat.chat.usecases;
 import com.echat.chat.exception.EntityNotFoundException;
 import com.echat.chat.models.ChatMessage;
 import com.echat.chat.models.entities.Contact;
+import com.echat.chat.models.entities.Message;
 import com.echat.chat.models.entities.User;
 import com.echat.chat.models.responses.UserContactsResponse;
 import com.echat.chat.repositories.ContactRepository;
+import com.echat.chat.repositories.MessageRepository;
 import com.echat.chat.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ public class GetUserMessageContactsUseCase {
 
     private final UserRepository userRepository;
     private final ContactRepository contactRepository;
+    private final MessageRepository messageRepository;
     private final String username;
 
     public UserContactsResponse execute() throws EntityNotFoundException {
@@ -37,12 +40,20 @@ public class GetUserMessageContactsUseCase {
                 ChatMessage.MessageType.JOIN,
                 contacts.stream().map(contact -> new UserContactsResponse.Contact(
                         contact.getId(),
-                        getUser(contact.getContactPerson())
+                        getUser(contact.getContactPerson()),
+                        getMessages(contact)
                 )).collect(Collectors.toList())
         );
     }
 
     private User getUser(String name) {
         return userRepository.findByUsername(name);
+    }
+
+    private List<Message> getMessages(Contact contact) {
+        return messageRepository.findAllByReceiverAndSender(
+                getUser(contact.getContactPerson()),
+                contact.getContactOwner()
+        );
     }
 }

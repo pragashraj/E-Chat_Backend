@@ -87,6 +87,7 @@ public class ChatController {
             GetUserMessageContactsUseCase useCase = new GetUserMessageContactsUseCase(
                     userRepository,
                     contactRepository,
+                    messageRepository,
                     chatMessage.getSender()
             );
             UserContactsResponse response = useCase.execute();
