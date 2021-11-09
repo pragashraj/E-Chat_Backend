@@ -6,19 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Contact {
+public class MyChat {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String contactPerson;
+    private String personName;
 
-    @OneToOne
-    private User contactOwner;
+    private Long personId;
+
+    @OneToMany
+    private List<Chat> chatList;
 }

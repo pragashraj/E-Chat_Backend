@@ -5,7 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Message {
+public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -22,9 +25,11 @@ public class Message {
 
     private LocalDateTime dateTime;
 
-    @OneToOne
-    private User receiver;
+    private String sender;
 
-    @OneToOne
-    private User sender;
+    private Long senderId;
+
+    private String receiver;
+
+    private Long receiverId;
 }

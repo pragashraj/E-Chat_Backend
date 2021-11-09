@@ -1,10 +1,8 @@
 package com.echat.chat.models.responses;
 
 import com.echat.chat.models.ChatMessage;
-import com.echat.chat.models.entities.Message;
-import com.echat.chat.models.entities.User;
+import com.echat.chat.models.entities.MyChat;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,18 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserContactsResponse {
-    private String sender;
+    private String joiner;
     private ChatMessage.MessageType type;
-    private List<Contact> contactList = new ArrayList<>();
-
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    @Data
-    public static class Contact {
-        private Long id;
-        private User contactPerson;
-        private List<Message> messages;
-    }
+    private List<MyChat> myChatList = new ArrayList<>();
 }
