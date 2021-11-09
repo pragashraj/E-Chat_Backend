@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserContactsResponse {
-    private String joiner;
+    private String username;
     private ChatMessage.MessageType type;
     private List<MyChat> myChatList = new ArrayList<>();
 }
