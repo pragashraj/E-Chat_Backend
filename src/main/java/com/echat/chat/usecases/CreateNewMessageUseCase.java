@@ -1,10 +1,12 @@
 package com.echat.chat.usecases;
 
 import com.echat.chat.exception.EntityNotFoundException;
+import com.echat.chat.models.ChatMessage;
 import com.echat.chat.models.entities.Chat;
 import com.echat.chat.models.entities.MyChat;
 import com.echat.chat.models.entities.User;
 import com.echat.chat.models.requests.NewMessageRequest;
+import com.echat.chat.models.responses.MessageResponse;
 import com.echat.chat.repositories.ChatRepository;
 import com.echat.chat.repositories.MyChatRepository;
 import com.echat.chat.repositories.UserRepository;
@@ -25,7 +27,7 @@ public class CreateNewMessageUseCase {
     private final MyChatRepository myChatRepository;
     private final NewMessageRequest request;
 
-    public void execute() throws EntityNotFoundException {
+    public MessageResponse execute() throws EntityNotFoundException {
         User sender = getUser(request.getSender());
 
         if (sender == null) {
@@ -43,6 +45,13 @@ public class CreateNewMessageUseCase {
         Chat chat = createNewChat(sender, receiver);
         handleChats(sender, receiver, chat);
         handleChats(receiver, sender, chat);
+
+        return new MessageResponse(
+                sender.getUsername(),
+                receiver.getUsername(),
+                ChatMessage.MessageType.CHAT,
+                chat
+        );
     }
 
     private User getUser(String name) {

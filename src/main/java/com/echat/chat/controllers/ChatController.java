@@ -3,6 +3,7 @@ package com.echat.chat.controllers;
 import com.echat.chat.exception.EntityNotFoundException;
 import com.echat.chat.models.ChatMessage;
 import com.echat.chat.models.requests.NewMessageRequest;
+import com.echat.chat.models.responses.MessageResponse;
 import com.echat.chat.models.responses.UserContactsResponse;
 import com.echat.chat.repositories.ChatRepository;
 import com.echat.chat.repositories.MyChatRepository;
@@ -41,8 +42,9 @@ public class ChatController {
 
     @MessageMapping("/sendMessage")
     @SendTo("/topic/public")
-    public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
+    public MessageResponse sendMessage(@Payload ChatMessage chatMessage) {
         try {
+            MessageResponse response = null;
             if (chatMessage.getType().equals(ChatMessage.MessageType.CHAT)) {
                 NewMessageRequest request = new NewMessageRequest(
                         chatMessage.getSender(),
@@ -55,14 +57,14 @@ public class ChatController {
                         myChatRepository,
                         request
                 );
-                useCase.execute();
+                response = useCase.execute();
             }
             logger.info("New message: {}, from : {}, to: {}",
                     chatMessage.getContent(),
                     chatMessage.getSender(),
                     chatMessage.getReceiver()
             );
-            return chatMessage;
+            return response;
         } catch (EntityNotFoundException e) {
             logger.error("Unable to send message, cause: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
