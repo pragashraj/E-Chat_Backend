@@ -44,7 +44,6 @@ public class CreateNewMessageUseCase {
 
         Chat chat = createNewChat(sender, receiver);
         handleChats(sender, receiver, chat);
-        handleChats(receiver, sender, chat);
 
         return new MessageResponse(
                 sender.getUsername(),
@@ -90,6 +89,8 @@ public class CreateNewMessageUseCase {
         if (myChatList.isEmpty()) {
             MyChat myChat = createNewMyChat(receiver, chat);
             myChatList.add(myChat);
+            sender.setMyChats(myChatList);
+            userRepository.save(sender);
         } else {
             boolean contactExist = false;
             MyChat existingContact = null;
@@ -111,10 +112,9 @@ public class CreateNewMessageUseCase {
             } else {
                 MyChat myChat = createNewMyChat(receiver, chat);
                 myChatList.add(myChat);
+                sender.setMyChats(myChatList);
+                userRepository.save(sender);
             }
         }
-
-        sender.setMyChats(myChatList);
-        userRepository.save(sender);
     }
 }
