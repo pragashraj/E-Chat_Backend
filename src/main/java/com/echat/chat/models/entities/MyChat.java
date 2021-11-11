@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,13 +17,20 @@ import java.util.List;
 @Builder
 public class MyChat {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "generic-generator")
+    @GenericGenerator(name = "generic-generator",
+            parameters = {
+                    @org.hibernate.annotations.Parameter(name = "prefix", value = "M"),
+                    @org.hibernate.annotations.Parameter(name = "digits", value = "9"),
+                    @org.hibernate.annotations.Parameter(name = "initial_id", value = "100000000"),
+            },
+            strategy = "com.echat.chat.utils.GenericIdGenerator")
+    private String id;
 
     private String personName;
 
-    private Long personId;
+    private String personId;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Chat> chatList = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    private List<Chat> chats = new ArrayList<>();
 }

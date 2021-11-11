@@ -78,14 +78,14 @@ public class CreateNewMessageUseCase {
         MyChat myChat = MyChat.builder()
                 .personId(receiver.getId())
                 .personName(receiver.getUsername())
-                .chatList(chatList)
+                .chats(chatList)
                 .build();
 
         return myChatRepository.save(myChat);
     }
 
     private void handleChats(User sender, User receiver, Chat chat) {
-        List<MyChat> myChatList = sender.getMyChatList();
+        List<MyChat> myChatList = sender.getMyChats();
 
         if (myChatList.isEmpty()) {
             MyChat myChat = createNewMyChat(receiver, chat);
@@ -103,9 +103,9 @@ public class CreateNewMessageUseCase {
             }
 
             if (contactExist) {
-                List<Chat> chats = existingContact.getChatList();
+                List<Chat> chats = existingContact.getChats();
                 chats.add(chat);
-                existingContact.setChatList(chats);
+                existingContact.setChats(chats);
                 myChatRepository.save(existingContact);
                 myChatList.add(existingContact);
             } else {
@@ -114,7 +114,7 @@ public class CreateNewMessageUseCase {
             }
         }
 
-        sender.setMyChatList(myChatList);
+        sender.setMyChats(myChatList);
         userRepository.save(sender);
     }
 }

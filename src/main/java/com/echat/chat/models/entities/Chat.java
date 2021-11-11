@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,8 +16,15 @@ import java.time.LocalDateTime;
 @Builder
 public class Chat {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "generic-generator")
+    @GenericGenerator(name = "generic-generator",
+            parameters = {
+                    @org.hibernate.annotations.Parameter(name = "prefix", value = "C"),
+                    @org.hibernate.annotations.Parameter(name = "digits", value = "9"),
+                    @org.hibernate.annotations.Parameter(name = "initial_id", value = "100000000"),
+            },
+            strategy = "com.echat.chat.utils.GenericIdGenerator")
+    private String id;
 
     private String message;
 
@@ -24,9 +32,9 @@ public class Chat {
 
     private String sender;
 
-    private Long senderId;
+    private String senderId;
 
     private String receiver;
 
-    private Long receiverId;
+    private String receiverId;
 }

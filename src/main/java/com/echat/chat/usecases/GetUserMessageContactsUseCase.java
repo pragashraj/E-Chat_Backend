@@ -27,7 +27,7 @@ public class GetUserMessageContactsUseCase {
         return new UserContactsResponse(
                 user.getUsername(),
                 ChatMessage.MessageType.JOIN,
-                user.getMyChatList()
+                user.getMyChats()
         );
     }
 
