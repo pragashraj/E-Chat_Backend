@@ -108,7 +108,6 @@ public class CreateNewMessageUseCase {
                 chats.add(chat);
                 existingContact.setChats(chats);
                 myChatRepository.save(existingContact);
-                myChatList.add(existingContact);
             } else {
                 MyChat myChat = createNewMyChat(receiver, chat);
                 myChatList.add(myChat);
