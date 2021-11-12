@@ -70,29 +70,20 @@ public class CreateNewMessageUseCase {
         return chatRepository.save(chat);
     }
 
-    private void createMyChatForSender(User sender, User receiver, Chat chat) {
-        List<MyChat> myChatList = sender.getMyChats();
-
-        List<Chat> chatList = new ArrayList<>();
-        chatList.add(chat);
-
-        MyChat myChat = MyChat.builder()
-                .personId(receiver.getId())
-                .personName(receiver.getUsername())
-                .chats(chatList)
-                .build();
-        MyChat newEntity = myChatRepository.save(myChat);
-
-        myChatList.add(newEntity);
-        sender.setMyChats(myChatList);
-        userRepository.save(sender);
+    private MyChat checkExistence(List<MyChat> myChatList, User user) {
+        for (MyChat myChat : myChatList) {
+            if (myChat.getSecondaryContributor().equals(user.getUsername())) {
+                return myChat;
+            }
+        }
+        return null;
     }
 
     private void handleChats(User sender, User receiver, Chat chat) {
         List<MyChat> senderMyChatList = sender.getMyChats();
 
         if (senderMyChatList.isEmpty()) {
-            createMyChatForSender(sender, receiver, chat);
+            createMyChat(sender, receiver, chat);
         } else {
             MyChat existingContact = checkExistence(senderMyChatList, receiver);
 
@@ -102,17 +93,28 @@ public class CreateNewMessageUseCase {
                 existingContact.setChats(chats);
                 myChatRepository.save(existingContact);
             } else {
-                createMyChatForSender(sender, receiver, chat);
+                createMyChat(sender, receiver, chat);
             }
         }
     }
 
-    private MyChat checkExistence(List<MyChat> myChatList, User receiver) {
-        for (MyChat myChat : myChatList) {
-            if (myChat.getPersonName().equals(receiver.getUsername())) {
-                return myChat;
-            }
-        }
-        return null;
+    private void createMyChat(User sender, User receiver, Chat chat) {
+        List<MyChat> senderMyChatList = sender.getMyChats();
+        List<MyChat> receiverMyChatList = receiver.getMyChats();
+
+        List<Chat> chatList = new ArrayList<>();
+        chatList.add(chat);
+
+        MyChat myChat = MyChat.builder()
+                .primaryContributor(sender.getUsername())
+                .secondaryContributor(receiver.getUsername())
+                .chats(chatList)
+                .build();
+
+        myChatRepository.save(myChat);
+
+        senderMyChatList.add(myChat);
+        sender.setMyChats(senderMyChatList);
+        userRepository.save(sender);
     }
 }
