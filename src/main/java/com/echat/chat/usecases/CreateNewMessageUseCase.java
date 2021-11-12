@@ -70,7 +70,9 @@ public class CreateNewMessageUseCase {
         return chatRepository.save(chat);
     }
 
-    private MyChat createNewMyChat(User receiver, Chat chat) {
+    private void createMyChatForSender(User sender, User receiver, Chat chat) {
+        List<MyChat> myChatList = sender.getMyChats();
+
         List<Chat> chatList = new ArrayList<>();
         chatList.add(chat);
 
@@ -79,41 +81,38 @@ public class CreateNewMessageUseCase {
                 .personName(receiver.getUsername())
                 .chats(chatList)
                 .build();
+        MyChat newEntity = myChatRepository.save(myChat);
 
-        return myChatRepository.save(myChat);
+        myChatList.add(newEntity);
+        sender.setMyChats(myChatList);
+        userRepository.save(sender);
     }
 
     private void handleChats(User sender, User receiver, Chat chat) {
-        List<MyChat> myChatList = sender.getMyChats();
+        List<MyChat> senderMyChatList = sender.getMyChats();
 
-        if (myChatList.isEmpty()) {
-            MyChat myChat = createNewMyChat(receiver, chat);
-            myChatList.add(myChat);
-            sender.setMyChats(myChatList);
-            userRepository.save(sender);
+        if (senderMyChatList.isEmpty()) {
+            createMyChatForSender(sender, receiver, chat);
         } else {
-            boolean contactExist = false;
-            MyChat existingContact = null;
+            MyChat existingContact = checkExistence(senderMyChatList, receiver);
 
-            for (MyChat myChat : myChatList) {
-                if (myChat.getPersonName().equals(receiver.getUsername())) {
-                    contactExist = true;
-                    existingContact = myChat;
-                    break;
-                }
-            }
-
-            if (contactExist) {
+            if (existingContact != null) {
                 List<Chat> chats = existingContact.getChats();
                 chats.add(chat);
                 existingContact.setChats(chats);
                 myChatRepository.save(existingContact);
             } else {
-                MyChat myChat = createNewMyChat(receiver, chat);
-                myChatList.add(myChat);
-                sender.setMyChats(myChatList);
-                userRepository.save(sender);
+                createMyChatForSender(sender, receiver, chat);
             }
         }
+    }
+
+    private MyChat checkExistence(List<MyChat> myChatList, User receiver) {
+        for (MyChat myChat : myChatList) {
+            if (myChat.getPersonName().equals(receiver.getUsername())) {
+                return myChat;
+            }
+        }
+        return null;
     }
 }
