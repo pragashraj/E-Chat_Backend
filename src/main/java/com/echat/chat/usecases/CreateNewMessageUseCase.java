@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 public class CreateNewMessageUseCase {
@@ -70,7 +71,7 @@ public class CreateNewMessageUseCase {
         return chatRepository.save(chat);
     }
 
-    private MyChat checkExistence(List<MyChat> myChatList, User user) {
+    private MyChat checkExistence(Set<MyChat> myChatList, User user) {
         for (MyChat myChat : myChatList) {
             if (myChat.getSecondaryContributor().equals(user.getUsername())) {
                 return myChat;
@@ -80,7 +81,7 @@ public class CreateNewMessageUseCase {
     }
 
     private void handleChats(User sender, User receiver, Chat chat) {
-        List<MyChat> senderMyChatList = sender.getMyChats();
+        Set<MyChat> senderMyChatList = sender.getMyChats();
 
         if (senderMyChatList.isEmpty()) {
             createMyChat(sender, receiver, chat);
@@ -99,8 +100,8 @@ public class CreateNewMessageUseCase {
     }
 
     private void createMyChat(User sender, User receiver, Chat chat) {
-        List<MyChat> senderMyChatList = sender.getMyChats();
-        List<MyChat> receiverMyChatList = receiver.getMyChats();
+        Set<MyChat> senderMyChatList = sender.getMyChats();
+        Set<MyChat> receiverMyChatList = receiver.getMyChats();
 
         List<Chat> chatList = new ArrayList<>();
         chatList.add(chat);
@@ -116,5 +117,9 @@ public class CreateNewMessageUseCase {
         senderMyChatList.add(myChat);
         sender.setMyChats(senderMyChatList);
         userRepository.save(sender);
+
+        receiverMyChatList.add(myChat);
+        receiver.setMyChats(receiverMyChatList);
+        userRepository.save(receiver);
     }
 }

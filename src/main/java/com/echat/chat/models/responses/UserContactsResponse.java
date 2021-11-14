@@ -6,8 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -15,5 +14,5 @@ import java.util.List;
 public class UserContactsResponse {
     private String username;
     private ChatMessage.MessageType type;
-    private List<MyChat> myChatList = new ArrayList<>();
+    private Set<MyChat> myChatList;
 }

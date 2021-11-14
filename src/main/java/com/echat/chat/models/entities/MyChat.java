@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -33,4 +34,7 @@ public class MyChat {
 
     @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private List<Chat> chats = new ArrayList<>();
+
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    private Set<User> users;
 }

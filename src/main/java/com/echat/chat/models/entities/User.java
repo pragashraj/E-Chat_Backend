@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -31,6 +30,6 @@ public class User {
 
     private String username;
 
-    @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    private List<MyChat> myChats = new ArrayList<>();
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    private Set<MyChat> myChats;
 }
