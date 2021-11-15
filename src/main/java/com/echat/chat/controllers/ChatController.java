@@ -10,7 +10,6 @@ import com.echat.chat.repositories.MyChatRepository;
 import com.echat.chat.repositories.UserRepository;
 import com.echat.chat.usecases.CreateNewMessageUseCase;
 import com.echat.chat.usecases.GetUserMessageContactsUseCase;
-import com.echat.chat.utils.WebSocketEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class ChatController {
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
     private final UserRepository userRepository;
     private final MyChatRepository myChatRepository;
