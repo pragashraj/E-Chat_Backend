@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @AllArgsConstructor
 public class CreateNewMessageUseCase {
@@ -71,55 +70,42 @@ public class CreateNewMessageUseCase {
         return chatRepository.save(chat);
     }
 
-    private MyChat checkExistence(Set<MyChat> myChatList, User user) {
-        for (MyChat myChat : myChatList) {
-            if (myChat.getSecondaryContributor().equals(user.getUsername())) {
-                return myChat;
-            }
-        }
-        return null;
-    }
-
     private void handleChats(User sender, User receiver, Chat chat) {
-        Set<MyChat> senderMyChatList = sender.getMyChats();
+        List<MyChat> myChatList = myChatRepository.findAllByUsersContains(sender);
 
-        if (senderMyChatList.isEmpty()) {
-            createMyChat(sender, receiver, chat);
-        } else {
-            MyChat existingContact = checkExistence(senderMyChatList, receiver);
+        MyChat myChat = null;
 
-            if (existingContact != null) {
-                List<Chat> chats = existingContact.getChats();
-                chats.add(chat);
-                existingContact.setChats(chats);
-                myChatRepository.save(existingContact);
-            } else {
-                createMyChat(sender, receiver, chat);
+        for (MyChat mychat : myChatList) {
+            List<User> userList = mychat.getUsers();
+
+            for (User user : userList) {
+                if (user.getUsername().equals(receiver.getUsername())) {
+                    myChat = mychat;
+                    break;
+                }
             }
         }
-    }
 
-    private void createMyChat(User sender, User receiver, Chat chat) {
-        Set<MyChat> senderMyChatList = sender.getMyChats();
-        Set<MyChat> receiverMyChatList = receiver.getMyChats();
+        if (myChat == null) {
+            List<Chat> chatList = new ArrayList<>();
+            chatList.add(chat);
 
-        List<Chat> chatList = new ArrayList<>();
-        chatList.add(chat);
+            List<User> userList = new ArrayList<>();
+            userList.add(sender);
+            userList.add(receiver);
 
-        MyChat myChat = MyChat.builder()
-                .primaryContributor(sender.getUsername())
-                .secondaryContributor(receiver.getUsername())
-                .chats(chatList)
-                .build();
+            MyChat newEntity = MyChat.builder()
+                    .chats(chatList)
+                    .users(userList)
+                    .build();
 
-        myChatRepository.save(myChat);
+            myChatRepository.save(newEntity);
 
-        senderMyChatList.add(myChat);
-        sender.setMyChats(senderMyChatList);
-        userRepository.save(sender);
-
-        receiverMyChatList.add(myChat);
-        receiver.setMyChats(receiverMyChatList);
-        userRepository.save(receiver);
+        } else {
+            List<Chat> chats = myChat.getChats();
+            chats.add(chat);
+            myChat.setChats(chats);
+            myChatRepository.save(myChat);
+        }
     }
 }
