@@ -7,15 +7,15 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MyChat {
+public class MyChat implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "generic-generator")
     @GenericGenerator(name = "generic-generator",
@@ -27,9 +27,6 @@ public class MyChat {
             strategy = "com.echat.chat.utils.GenericIdGenerator")
     private String id;
 
-    @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    private List<Chat> chats = new ArrayList<>();
-
-    @OneToMany
-    private List<User> users = new ArrayList<>();
+    @OneToMany(mappedBy = "myChat", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Chat> chats;
 }

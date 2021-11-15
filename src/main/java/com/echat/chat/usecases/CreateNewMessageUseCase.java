@@ -71,41 +71,6 @@ public class CreateNewMessageUseCase {
     }
 
     private void handleChats(User sender, User receiver, Chat chat) {
-        List<MyChat> myChatList = myChatRepository.findAllByUsersContains(sender);
 
-        MyChat myChat = null;
-
-        for (MyChat mychat : myChatList) {
-            List<User> userList = mychat.getUsers();
-
-            for (User user : userList) {
-                if (user.getUsername().equals(receiver.getUsername())) {
-                    myChat = mychat;
-                    break;
-                }
-            }
-        }
-
-        if (myChat == null) {
-            List<Chat> chatList = new ArrayList<>();
-            chatList.add(chat);
-
-            List<User> userList = new ArrayList<>();
-            userList.add(sender);
-            userList.add(receiver);
-
-            MyChat newEntity = MyChat.builder()
-                    .chats(chatList)
-                    .users(userList)
-                    .build();
-
-            myChatRepository.save(newEntity);
-
-        } else {
-            List<Chat> chats = myChat.getChats();
-            chats.add(chat);
-            myChat.setChats(chats);
-            myChatRepository.save(myChat);
-        }
     }
 }

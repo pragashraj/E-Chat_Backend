@@ -8,7 +8,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/eChat_test?createDatabaseIfNotExist=true&useLegacyDatetimeCode=false
+    url: jdbc:mysql://localhost:3306/eChat?createDatabaseIfNotExist=true&useLegacyDatetimeCode=false
     username: root
     password:
   jpa:
@@ -20,7 +20,7 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    open-in-view: false
+    show-sql: true
 
 app:
   jwt:
