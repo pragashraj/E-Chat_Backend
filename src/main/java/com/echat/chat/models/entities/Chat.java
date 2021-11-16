@@ -38,8 +38,4 @@ public class Chat implements Serializable {
     private String receiver;
 
     private String receiverId;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "myChat_id", nullable = false)
-    private MyChat myChat;
 }

@@ -7,27 +7,26 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MyChat implements Serializable {
+public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "generic-generator")
     @GenericGenerator(name = "generic-generator",
             parameters = {
-                    @org.hibernate.annotations.Parameter(name = "prefix", value = "M"),
+                    @org.hibernate.annotations.Parameter(name = "prefix", value = "CT"),
                     @org.hibernate.annotations.Parameter(name = "digits", value = "9"),
                     @org.hibernate.annotations.Parameter(name = "initial_id", value = "100000000"),
             },
             strategy = "com.echat.chat.utils.GenericIdGenerator")
     private String id;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    private List<Chat> chats = new ArrayList<>();
+    private String contactor;
+
+    @OneToOne
+    private MyChat myChat;
 }

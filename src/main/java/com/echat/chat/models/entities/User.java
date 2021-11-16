@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @Data
@@ -29,4 +30,7 @@ public class User implements Serializable {
     private String email;
 
     private String username;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    private Set<Contact> contacts;
 }

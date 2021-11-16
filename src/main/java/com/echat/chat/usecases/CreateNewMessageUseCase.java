@@ -3,11 +3,13 @@ package com.echat.chat.usecases;
 import com.echat.chat.exception.EntityNotFoundException;
 import com.echat.chat.models.ChatMessage;
 import com.echat.chat.models.entities.Chat;
+import com.echat.chat.models.entities.Contact;
 import com.echat.chat.models.entities.MyChat;
 import com.echat.chat.models.entities.User;
 import com.echat.chat.models.requests.NewMessageRequest;
 import com.echat.chat.models.responses.MessageResponse;
 import com.echat.chat.repositories.ChatRepository;
+import com.echat.chat.repositories.ContactRepository;
 import com.echat.chat.repositories.MyChatRepository;
 import com.echat.chat.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -15,8 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @AllArgsConstructor
 public class CreateNewMessageUseCase {
@@ -25,6 +26,7 @@ public class CreateNewMessageUseCase {
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
     private final MyChatRepository myChatRepository;
+    private final ContactRepository contactRepository;
     private final NewMessageRequest request;
 
     public MessageResponse execute() throws EntityNotFoundException {
@@ -71,6 +73,49 @@ public class CreateNewMessageUseCase {
     }
 
     private void handleChats(User sender, User receiver, Chat chat) {
+        Set<Contact> senderContacts = sender.getContacts();
 
+        MyChat myChat = null;
+
+        for (Contact contact : senderContacts) {
+            if (contact.getContactor().equals(receiver.getUsername())) {
+                myChat = contact.getMyChat();
+            }
+        }
+
+        if (myChat == null) {
+            List<Chat> chatList = new ArrayList<>();
+            chatList.add(chat);
+
+            MyChat newMyChat = MyChat.builder().chats(chatList).build();
+            myChatRepository.save(newMyChat);
+
+            Contact senderContact = Contact.builder()
+                    .contactor(receiver.getUsername())
+                    .myChat(newMyChat)
+                    .build();
+            contactRepository.save(senderContact);
+
+            senderContacts.add(senderContact);
+            sender.setContacts(senderContacts);
+            userRepository.save(sender);
+
+            Contact receiverContact = Contact.builder()
+                    .contactor(sender.getUsername())
+                    .myChat(newMyChat)
+                    .build();
+            contactRepository.save(receiverContact);
+
+            Set<Contact> receiverContacts = receiver.getContacts();
+            receiverContacts.add(receiverContact);
+            receiver.setContacts(receiverContacts);
+            userRepository.save(receiver);
+        } else {
+            List<Chat> chatList = myChat.getChats();
+            chatList.add(chat);
+
+            myChat.setChats(chatList);
+            myChatRepository.save(myChat);
+        }
     }
 }
