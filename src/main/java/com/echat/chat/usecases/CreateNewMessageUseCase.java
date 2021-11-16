@@ -3,11 +3,13 @@ package com.echat.chat.usecases;
 import com.echat.chat.exception.EntityNotFoundException;
 import com.echat.chat.models.ChatMessage;
 import com.echat.chat.models.entities.Chat;
+import com.echat.chat.models.entities.Contact;
 import com.echat.chat.models.entities.MyChat;
 import com.echat.chat.models.entities.User;
 import com.echat.chat.models.requests.NewMessageRequest;
 import com.echat.chat.models.responses.MessageResponse;
 import com.echat.chat.repositories.ChatRepository;
+import com.echat.chat.repositories.ContactRepository;
 import com.echat.chat.repositories.MyChatRepository;
 import com.echat.chat.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -15,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @AllArgsConstructor
 public class CreateNewMessageUseCase {
@@ -26,6 +26,7 @@ public class CreateNewMessageUseCase {
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
     private final MyChatRepository myChatRepository;
+    private final ContactRepository contactRepository;
     private final NewMessageRequest request;
 
     public MessageResponse execute() throws EntityNotFoundException {
@@ -71,55 +72,50 @@ public class CreateNewMessageUseCase {
         return chatRepository.save(chat);
     }
 
-    private MyChat checkExistence(Set<MyChat> myChatList, User user) {
-        for (MyChat myChat : myChatList) {
-            if (myChat.getSecondaryContributor().equals(user.getUsername())) {
-                return myChat;
-            }
-        }
-        return null;
-    }
-
     private void handleChats(User sender, User receiver, Chat chat) {
-        Set<MyChat> senderMyChatList = sender.getMyChats();
+        Set<Contact> senderContacts = sender.getContacts();
 
-        if (senderMyChatList.isEmpty()) {
-            createMyChat(sender, receiver, chat);
-        } else {
-            MyChat existingContact = checkExistence(senderMyChatList, receiver);
+        MyChat myChat = null;
 
-            if (existingContact != null) {
-                List<Chat> chats = existingContact.getChats();
-                chats.add(chat);
-                existingContact.setChats(chats);
-                myChatRepository.save(existingContact);
-            } else {
-                createMyChat(sender, receiver, chat);
+        for (Contact contact : senderContacts) {
+            if (contact.getContactor().equals(receiver.getUsername())) {
+                myChat = contact.getMyChat();
             }
         }
-    }
 
-    private void createMyChat(User sender, User receiver, Chat chat) {
-        Set<MyChat> senderMyChatList = sender.getMyChats();
-        Set<MyChat> receiverMyChatList = receiver.getMyChats();
+        if (myChat == null) {
+            List<Chat> chatList = new ArrayList<>();
+            chatList.add(chat);
 
-        List<Chat> chatList = new ArrayList<>();
-        chatList.add(chat);
+            MyChat newMyChat = MyChat.builder().chats(chatList).build();
+            myChatRepository.save(newMyChat);
 
-        MyChat myChat = MyChat.builder()
-                .primaryContributor(sender.getUsername())
-                .secondaryContributor(receiver.getUsername())
-                .chats(chatList)
-                .build();
+            Contact senderContact = Contact.builder()
+                    .contactor(receiver.getUsername())
+                    .myChat(newMyChat)
+                    .build();
+            contactRepository.save(senderContact);
 
-        myChatRepository.save(myChat);
+            senderContacts.add(senderContact);
+            sender.setContacts(senderContacts);
+            userRepository.save(sender);
 
-        senderMyChatList.add(myChat);
-        sender.setMyChats(senderMyChatList);
-        userRepository.save(sender);
+            Contact receiverContact = Contact.builder()
+                    .contactor(sender.getUsername())
+                    .myChat(newMyChat)
+                    .build();
+            contactRepository.save(receiverContact);
 
-        receiverMyChatList.add(myChat);
-        receiver.setMyChats(receiverMyChatList);
-        userRepository.save(receiver);
+            Set<Contact> receiverContacts = receiver.getContacts();
+            receiverContacts.add(receiverContact);
+            receiver.setContacts(receiverContacts);
+            userRepository.save(receiver);
+        } else {
+            List<Chat> chatList = myChat.getChats();
+            chatList.add(chat);
+
+            myChat.setChats(chatList);
+            myChatRepository.save(myChat);
+        }
     }
 }

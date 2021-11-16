@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.stream.Collectors;
+
 @AllArgsConstructor
 public class GetUserMessageContactsUseCase {
     private static final Logger log = LoggerFactory.getLogger(GetUserMessageContactsUseCase.class);
@@ -27,7 +29,10 @@ public class GetUserMessageContactsUseCase {
         return new UserContactsResponse(
                 user.getUsername(),
                 ChatMessage.MessageType.JOIN,
-                user.getMyChats()
+                user.getContacts().stream().map(contact -> new UserContactsResponse.MyChat(
+                        contact.getContactor(),
+                        contact.getMyChat().getChats()
+                )).collect(Collectors.toList())
         );
     }
 

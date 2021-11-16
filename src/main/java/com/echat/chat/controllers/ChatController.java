@@ -6,6 +6,7 @@ import com.echat.chat.models.requests.NewMessageRequest;
 import com.echat.chat.models.responses.MessageResponse;
 import com.echat.chat.models.responses.UserContactsResponse;
 import com.echat.chat.repositories.ChatRepository;
+import com.echat.chat.repositories.ContactRepository;
 import com.echat.chat.repositories.MyChatRepository;
 import com.echat.chat.repositories.UserRepository;
 import com.echat.chat.usecases.CreateNewMessageUseCase;
@@ -28,15 +29,18 @@ public class ChatController {
     private final UserRepository userRepository;
     private final MyChatRepository myChatRepository;
     private final ChatRepository chatRepository;
+    private final ContactRepository contactRepository;
 
     @Autowired
     public ChatController(UserRepository userRepository,
                           MyChatRepository myChatRepository,
-                          ChatRepository chatRepository
+                          ChatRepository chatRepository,
+                          ContactRepository contactRepository
     ) {
         this.userRepository = userRepository;
         this.myChatRepository = myChatRepository;
         this.chatRepository = chatRepository;
+        this.contactRepository = contactRepository;
     }
 
     @MessageMapping("/sendMessage")
@@ -54,6 +58,7 @@ public class ChatController {
                         userRepository,
                         chatRepository,
                         myChatRepository,
+                        contactRepository,
                         request
                 );
                 response = useCase.execute();

@@ -20,7 +20,7 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    open-in-view: false
+    show-sql: true
 
 app:
   jwt:
