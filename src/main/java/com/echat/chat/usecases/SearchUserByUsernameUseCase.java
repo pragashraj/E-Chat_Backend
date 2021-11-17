@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class SearchUserByUsernameUseCase {
-    private static final Logger log = LoggerFactory.getLogger(RegisterUseCase.class);
+    private static final Logger log = LoggerFactory.getLogger(SearchUserByUsernameUseCase.class);
 
     private final UserRepository userRepository;
     private final String username;
