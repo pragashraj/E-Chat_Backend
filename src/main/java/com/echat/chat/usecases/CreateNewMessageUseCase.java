@@ -16,6 +16,9 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -29,7 +32,7 @@ public class CreateNewMessageUseCase {
     private final ContactRepository contactRepository;
     private final NewMessageRequest request;
 
-    public MessageResponse execute() throws EntityNotFoundException {
+    public MessageResponse execute() throws EntityNotFoundException, UnsupportedEncodingException {
         User sender = getUser(request.getSender());
 
         if (sender == null) {
@@ -51,7 +54,7 @@ public class CreateNewMessageUseCase {
                 sender.getUsername(),
                 receiver.getUsername(),
                 ChatMessage.MessageType.CHAT,
-                chat,
+                getChat(chat),
                 request.getContentType()
         );
     }
@@ -60,9 +63,16 @@ public class CreateNewMessageUseCase {
         return userRepository.findByUsername(name);
     }
 
-    private Chat createNewChat(User sender, User receiver) {
+    private Chat createNewChat(User sender, User receiver) throws UnsupportedEncodingException {
+        String message = request.getMessage();
+        String contentType = request.getContentType();
+
+        if (contentType.equals("EMOJI")) {
+            message = encodeStringUrl(message);
+        }
+
         Chat chat = Chat.builder()
-                .message(request.getMessage())
+                .message(message)
                 .dateTime(LocalDateTime.now())
                 .sender(request.getSender())
                 .senderId(sender.getId())
@@ -119,5 +129,26 @@ public class CreateNewMessageUseCase {
             myChat.setChats(chatList);
             myChatRepository.save(myChat);
         }
+    }
+
+    private String encodeStringUrl(String message) throws UnsupportedEncodingException {
+        return URLEncoder.encode(message, "UTF-8");
+    }
+
+    private String decodeStringUrl(String message) throws UnsupportedEncodingException {
+        return URLDecoder.decode(message, "UTF-8");
+    }
+
+    private Chat getChat(Chat chat) throws UnsupportedEncodingException {
+        return Chat.builder()
+                .id(chat.getId())
+                .message(decodeStringUrl(chat.getMessage()))
+                .dateTime(chat.getDateTime())
+                .sender(chat.getSender())
+                .receiver(chat.getReceiver())
+                .senderId(chat.getSenderId())
+                .receiverId(chat.getReceiverId())
+                .contentType(request.getContentType())
+                .build();
     }
 }
