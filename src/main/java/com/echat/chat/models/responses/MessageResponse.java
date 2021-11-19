@@ -14,4 +14,5 @@ public class MessageResponse {
     private String receiver;
     private ChatMessage.MessageType type;
     private Chat chat;
+    private String contentType;
 }

@@ -11,4 +11,5 @@ public class NewMessageRequest {
     private String sender;
     private String receiver;
     private String message;
+    private String contentType;
 }

@@ -38,4 +38,6 @@ public class Chat implements Serializable {
     private String receiver;
 
     private String receiverId;
+
+    private String contentType;
 }

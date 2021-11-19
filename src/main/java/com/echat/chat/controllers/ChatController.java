@@ -52,7 +52,8 @@ public class ChatController {
                 NewMessageRequest request = new NewMessageRequest(
                         chatMessage.getSender(),
                         chatMessage.getReceiver(),
-                        chatMessage.getContent()
+                        chatMessage.getContent(),
+                        chatMessage.getContentType()
                 );
                 CreateNewMessageUseCase useCase = new CreateNewMessageUseCase(
                         userRepository,

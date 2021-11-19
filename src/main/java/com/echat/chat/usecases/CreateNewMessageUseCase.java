@@ -51,7 +51,8 @@ public class CreateNewMessageUseCase {
                 sender.getUsername(),
                 receiver.getUsername(),
                 ChatMessage.MessageType.CHAT,
-                chat
+                chat,
+                request.getContentType()
         );
     }
 
@@ -67,6 +68,7 @@ public class CreateNewMessageUseCase {
                 .senderId(sender.getId())
                 .receiver(request.getReceiver())
                 .receiverId(receiver.getId())
+                .contentType(request.getContentType())
                 .build();
 
         return chatRepository.save(chat);
